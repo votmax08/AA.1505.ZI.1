@@ -15,6 +15,11 @@ CWinApp theApp;
 
 using namespace std;
 
+void start()
+{
+
+}
+
 int main()
 {
     int nRetCode = 0;
@@ -32,7 +37,7 @@ int main()
         }
         else
         {
-            // TODO: code your application's behavior here.
+			start();
         }
     }
     else
