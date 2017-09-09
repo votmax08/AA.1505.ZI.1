@@ -2,7 +2,6 @@
 // ROT0 Vigenere Cipher
 //
 
-#include <cstdint>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -57,7 +56,7 @@ int main(int argc, const char *argv[])
     ifstream ks(parser.getOption("-k"), ifstream::binary);
     ifstream is(parser.getOption("-i"), ifstream::binary);
     ofstream os(parser.getOption("-o"));
-    bool bDecode = parser.optionExists("-d");
+    bool bDecrypt = parser.optionExists("-d");
 
     if (!(is.is_open() && os.is_open() && ks.is_open()))
     {
@@ -65,26 +64,24 @@ int main(int argc, const char *argv[])
         return 1;
     }
 
-    std::vector<uint8_t> key((istreambuf_iterator<char>(ks)),
-                             istreambuf_iterator<char>());
+    vector<char> key((istreambuf_iterator<char>(ks)),
+                     istreambuf_iterator<char>());
 
-    size_t pos = 0;
-    istreambuf_iterator<char> ii(is), ie;
-    ostreambuf_iterator<char> oi(os);
-    while(ii != ie)
+    size_t keyPos = 0;
+    transform(istreambuf_iterator<char>(is), istreambuf_iterator<char>(), ostreambuf_iterator<char>(os), [key, &keyPos, bDecrypt](const char &symbol)
     {
-        uint8_t byte = *(ii++);
+        static const size_t alphabet_len = (1 << 8 * sizeof(char));
 
-        if (!bDecode)
-            byte = (byte + key[pos % 3]) % 256;
+        char result;
+        if (!bDecrypt)
+            result = (symbol + key[keyPos]) % alphabet_len;
         else
-            byte = (byte - key[pos % 3]) % 256;
+            result = (symbol - key[keyPos]) % alphabet_len;
 
-        oi = (char)byte;
-        oi++;
+        keyPos = (keyPos + 1) % key.size();
 
-        pos++;
-    }
+        return result;
+    });
 
     return 0;
 }
