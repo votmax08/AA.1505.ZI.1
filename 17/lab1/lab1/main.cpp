@@ -61,15 +61,16 @@ int main(int argc, const char *argv[])
         return 1;
     }
 
-    vector<char> key((istreambuf_iterator<char>(ks)),
-                     istreambuf_iterator<char>());
+    vector<unsigned char> key((istreambuf_iterator<char>(ks)),
+                              istreambuf_iterator<char>());
 
     size_t keyPos = 0;
-    transform(istreambuf_iterator<char>(is), istreambuf_iterator<char>(), ostreambuf_iterator<char>(os), [key, &keyPos, &bDecrypt](const char &symbol)
+    transform(istreambuf_iterator<char>(is), istreambuf_iterator<char>(), ostreambuf_iterator<char>(os), [key, &keyPos, &bDecrypt](const char &in)
     {
         static const size_t alphabet_len = (1 << 8 * sizeof(char));
+        unsigned char symbol = static_cast<unsigned char>(in);
 
-        char result;
+        unsigned char result;
         if (!bDecrypt)
             result = (symbol + key[keyPos]) % alphabet_len;
         else
@@ -77,7 +78,7 @@ int main(int argc, const char *argv[])
 
         keyPos = (keyPos + 1) % key.size();
 
-        return result;
+        return static_cast<char>(result);
     });
 
     return 0;
