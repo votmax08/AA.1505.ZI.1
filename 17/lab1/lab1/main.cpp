@@ -2,10 +2,7 @@
 // ROT0 Vigenere Cipher
 //
 
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <algorithm>
+#include "stdafx.h"
 
 using namespace std;
 
