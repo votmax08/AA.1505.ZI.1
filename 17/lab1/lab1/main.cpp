@@ -68,7 +68,7 @@ int main(int argc, const char *argv[])
                      istreambuf_iterator<char>());
 
     size_t keyPos = 0;
-    transform(istreambuf_iterator<char>(is), istreambuf_iterator<char>(), ostreambuf_iterator<char>(os), [key, &keyPos, bDecrypt](const char &symbol)
+    transform(istreambuf_iterator<char>(is), istreambuf_iterator<char>(), ostreambuf_iterator<char>(os), [key, &keyPos, &bDecrypt](const char &symbol)
     {
         static const size_t alphabet_len = (1 << 8 * sizeof(char));
 
