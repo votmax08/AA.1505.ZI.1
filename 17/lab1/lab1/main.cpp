@@ -12,74 +12,74 @@ using namespace std;
 class InputParser
 {
 public:
-    InputParser(int argc, const char *argv[])
-    {
-        for (int i = 1; i < argc; i++)
-        {
-            tokens.push_back(string(argv[i]));
-        }
-    }
+	InputParser(int argc, const char *argv[])
+	{
+		for (int i = 1; i < argc; i++)
+		{
+			tokens.push_back(string(argv[i]));
+		}
+	}
 
-    string getOption(const string &option) const
-    {
-        vector<string>::const_iterator it;
-        it = find(tokens.begin(), tokens.end(), option);
-        if (it != tokens.end() && ++it != tokens.end())
-        {
-            return *it;
-        }
+	string getOption(const string &option) const
+	{
+		vector<string>::const_iterator it;
+		it = find(tokens.begin(), tokens.end(), option);
+		if (it != tokens.end() && ++it != tokens.end())
+		{
+			return *it;
+		}
 
-        return "";
-    }
+		return "";
+	}
 
-    bool optionExists(const string &option) const
-    {
-        return find(tokens.begin(), tokens.end(), option) != tokens.end();
-    }
+	bool optionExists(const string &option) const
+	{
+		return find(tokens.begin(), tokens.end(), option) != tokens.end();
+	}
 
 private:
-    std::vector<string> tokens;
+	std::vector<string> tokens;
 };
 
 void Usage(const char *pName)
 {
-    cout << "Usage: " << pName << " -k <keyfile> -i <infile> -o <outfile> [-d]" << endl;
+	cout << "Usage: " << pName << " -k <keyfile> -i <infile> -o <outfile> [-d]" << endl;
 }
 
 int main(int argc, const char *argv[])
 {
-    InputParser parser(argc, argv);
+	InputParser parser(argc, argv);
 
-    ifstream ks(parser.getOption("-k"), ifstream::binary);
-    ifstream is(parser.getOption("-i"), ifstream::binary);
-    ofstream os(parser.getOption("-o"));
-    bool bDecrypt = parser.optionExists("-d");
+	ifstream ks(parser.getOption("-k"), ifstream::binary);
+	ifstream is(parser.getOption("-i"), ifstream::binary);
+	ofstream os(parser.getOption("-o"), ofstream::binary);
+	bool bDecrypt = parser.optionExists("-d");
 
-    if (!(is.is_open() && os.is_open() && ks.is_open()))
-    {
-        Usage(argv[0]);
-        return 1;
-    }
+	if (!(is.is_open() && os.is_open() && ks.is_open()))
+	{
+		Usage(argv[0]);
+		return 1;
+	}
 
-    vector<unsigned char> key((istreambuf_iterator<char>(ks)),
-                              istreambuf_iterator<char>());
+	vector<unsigned char> key((istreambuf_iterator<char>(ks)),
+		                      istreambuf_iterator<char>());
 
-    size_t keyPos = 0;
-    transform(istreambuf_iterator<char>(is), istreambuf_iterator<char>(), ostreambuf_iterator<char>(os), [key, &keyPos, &bDecrypt](const char &in)
-    {
-        static const size_t alphabet_len = (1 << 8 * sizeof(char));
-        unsigned char symbol = static_cast<unsigned char>(in);
+	size_t keyPos = 0;
+	transform(istreambuf_iterator<char>(is), istreambuf_iterator<char>(), ostreambuf_iterator<char>(os), [&](const char &in)
+	{
+		static const size_t alphabet_len = (1 << 8 * sizeof(char));
+		unsigned char symbol = static_cast<unsigned char>(in);
 
-        unsigned char result;
-        if (!bDecrypt)
-            result = (symbol + key[keyPos]) % alphabet_len;
-        else
-            result = (symbol - key[keyPos]) % alphabet_len;
+		unsigned char result;
+		if (!bDecrypt)
+			result = (symbol + key[keyPos]) % alphabet_len;
+		else
+			result = (symbol - key[keyPos]) % alphabet_len;
 
-        keyPos = (keyPos + 1) % key.size();
+		keyPos = (keyPos + 1) % key.size();
 
-        return static_cast<char>(result);
-    });
+		return static_cast<char>(result);
+	});
 
-    return 0;
+	return 0;
 }
